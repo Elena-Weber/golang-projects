@@ -1,18 +1,17 @@
 package main
 
 import (
+	"go-web-app/pkg/handlers"
 	"fmt"
 	"net/http"
 )
 
 const portNumber = ":8080"
 
-
-
 // main is the main app function
 func main() {
-	http.HandleFunc("/", Home)
-	http.HandleFunc("/about", About)
+	http.HandleFunc("/", handlers.Home)
+	http.HandleFunc("/about", handlers.About)
 
 	// Sprtintf = string print with variable type string
 	fmt.Println(fmt.Sprintf("Starting app on port %s", portNumber))
