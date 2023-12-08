@@ -9,6 +9,7 @@ import (
 const portNumber = ":8080"
 
 // main is the main app function
+// to run the app - go run cmd/web/*.go - in the root folder of the project
 func main() {
 	http.HandleFunc("/", handlers.Home)
 	http.HandleFunc("/about", handlers.About)
