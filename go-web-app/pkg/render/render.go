@@ -6,36 +6,48 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"go-web-app/pkg/config"
 )
+
+var functions = template.FuncMap{
+
+}
+
+// this var is a pointer to config.AppConfig
+var app *config.AppConfig
+func NewTemplates(a *config.AppConfig) {
+  app = a
+}
 
 // ResponseWriter writes to browser
 func RenderTemplate(w http.ResponseWriter, tmpl string) {
-	// create template cache
-	tc, err := createTemplateCache()
-	if err != nil {
-		log.Fatal(err)
+	var tc map[string]*template.Template
+	
+	if app.UseCache {
+		// get template cache from app config
+		tc = app.TemplateCache
+	} else {
+		tc, _ = CreateTemplateCache() // ignore error by using _
 	}
+  
 
 	// get requested template from cache
 	t, ok := tc[tmpl]
 	if !ok {
-		log.Fatal(err)
+		log.Fatal("Could not get a template from template cache")
 	}
 
 	// fine tuning error search
 	buf := new(bytes.Buffer)
-	err = t.Execute(buf, nil)
-  if err != nil {
-		log.Println(err)
-	}
+	_ = t.Execute(buf, nil)
 
-  _, err = buf.WriteTo(w)
+  _, err := buf.WriteTo(w)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error writing template to browser", err)
 	}
 }
 
-func createTemplateCache() (map[string]*template.Template, error) {
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	// these 2 lines are identical and create a map of strings of template pointers
 	// myCache := make(map[string]*template.Template)
 	myCache := map[string]*template.Template{}
