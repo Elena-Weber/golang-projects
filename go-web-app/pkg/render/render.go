@@ -2,27 +2,31 @@ package render
 
 import (
 	"bytes"
+	"go-web-app/pkg/config"
+	"go-web-app/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
-	"go-web-app/pkg/config"
 )
 
-var functions = template.FuncMap{
-
-}
+var functions = template.FuncMap{}
 
 // this var is a pointer to config.AppConfig
 var app *config.AppConfig
+
 func NewTemplates(a *config.AppConfig) {
   app = a
 }
 
+func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+  return td
+}
+
 // ResponseWriter writes to browser
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
-	
+
 	if app.UseCache {
 		// get template cache from app config
 		tc = app.TemplateCache
@@ -39,7 +43,10 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 
 	// fine tuning error search
 	buf := new(bytes.Buffer)
-	_ = t.Execute(buf, nil)
+
+  td = AddDefaultData(td)
+
+	_ = t.Execute(buf, td)
 
   _, err := buf.WriteTo(w)
 	if err != nil {
@@ -81,5 +88,6 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 
 		myCache[name] = ts
 	}
+	
 	return myCache, nil
 }
