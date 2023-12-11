@@ -13,8 +13,12 @@ func routes(app *config.AppConfig) http.Handler {
 	// default server mux
   mux := chi.NewRouter()
 
-	// add middleware to handle aoo panics
+	// add chi middleware to handle app panics
 	mux.Use(middleware.Recoverer)
+
+	// use middlewares we created in middleware.go
+	mux.Use(WriteToConsole)
+	mux.Use(NoSurf)
 
 	// routes
 	mux.Get("/", handlers.Repo.Home)
