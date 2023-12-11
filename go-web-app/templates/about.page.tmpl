@@ -4,5 +4,13 @@
   <div class="container">
     <h1>ABOUT</h1>
     <p>Passing data from template: {{index .StringMap "test"}}</p>
+
+    <p>
+      {{if ne (index .StringMap "remote_ip") ""}}
+        Your remote IP address is: {{index .StringMap "remote_ip"}}
+      {{else}}
+        We don't know your IP address yet. Visit <a href="/">Home page</a>
+      {{end}}
+    </p>
   </div>
 {{end}}

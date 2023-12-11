@@ -31,6 +31,9 @@ func NewHandlers(r *Repository) {
 // Capital letter function name means it's global
 // receives a receiver of type Repository
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
+  remoteIP := r.RemoteAddr
+	m.App.Session.Put(r.Context(), "remote_ip", remoteIP) // set value to session
+
 	render.RenderTemplate(w, "home.page.tmpl", &models.TemplateData{}) // send TemplateData to template
 }
 
@@ -38,6 +41,9 @@ func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
   stringMap := make(map[string]string)
 	stringMap["test"] = "Hello there!"
+
+	remoteIP := m.App.Session.GetString(r.Context(), "remote_ip") // read value from session
+	stringMap["remote_ip"] = remoteIP
 
 	render.RenderTemplate(w, "about.page.tmpl", &models.TemplateData{ // send TemplateData to template
 		StringMap: stringMap,
