@@ -1,12 +1,12 @@
 package main
 
 import (
-	"go-web-app/pkg/render"
 	"fmt"
 	"go-web-app/pkg/config"
 	"go-web-app/pkg/handlers"
-	"net/http"
+	"go-web-app/pkg/render"
 	"log"
+	"net/http"
 )
 
 const portNumber = ":8080"
@@ -29,12 +29,16 @@ func main() {
 
 	render.NewTemplates(&app)
 
-	http.HandleFunc("/", handlers.Repo.Home)
-	http.HandleFunc("/about", handlers.Repo.About)
-
 	// Sprtintf = string print with variable type string
 	fmt.Println(fmt.Sprintf("Starting app on port %s", portNumber))
 
-	//ignore errors, listen to port http://localhost:8080/
-	_ = http.ListenAndServe(portNumber, nil)
+	// create server with port and routes
+	srv := &http.Server{
+		Addr: portNumber,
+		Handler: routes(&app),
+	}
+
+	// listen for errors on port http://localhost:8080/
+	err = srv.ListenAndServe()
+	log.Fatal(err)
 }
