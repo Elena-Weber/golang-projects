@@ -105,6 +105,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+      let attention = Prompt();
+
       (function() {
         'use strict';
         window.addEventListener('load', function() {
@@ -127,8 +129,11 @@
       });
 
       document.getElementById("submit-btn").addEventListener("click", function () {
-        notify("MSG", "success");
-        modalAlert("title", "text", "success", "btnText")
+        // notify("MSG", "success");
+        // modalAlert("title", "text", "success", "btnText")
+        // attention.toast({msg: "Hello!"});
+        // attention.success({msg: "Success!"});
+        attention.error({msg: "Oops!"});
       })
 
       function notify(msg, msgType) {
@@ -145,6 +150,67 @@
           icon: icon,
           confirmButtonText: btnText
         })
+      }
+
+      function Prompt(){
+        let toast = function(c){
+          const {
+            msg = "",
+            icon = "success", // default
+            position = "top-end" // default
+          } = c;
+
+          const Toast = Swal.mixin({
+            toast: true,
+            title: msg,
+            position: position,
+            icon: icon,
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.onmouseenter = Swal.stopTimer;
+              toast.onmouseleave = Swal.resumeTimer;
+            }
+          });
+
+          Toast.fire({}); // takes necessary arguments from Toast above
+        }
+        let success = function(c){
+          const {
+            msg = "",
+            footer = "",
+            title = ""
+          } = c;
+
+          Swal.fire({
+            icon: "success",
+            title: title,
+            text: msg,
+            footer: footer
+          });
+        }
+
+        let error = function(c){
+          const {
+            msg = "",
+            footer = "",
+            title = ""
+          } = c;
+
+          Swal.fire({
+            icon: "error",
+            title: title,
+            text: msg,
+            footer: footer
+          });
+        }
+
+        return {
+          toast: toast,
+          success: success,
+          error: error
+        }
       }
     </script>
   </body>
