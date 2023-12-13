@@ -7,19 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker-bs4.min.css">
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
-    
-    <style>
-      .footer {
-        background-color: green;
-        margin-top: 1.5em;
-        height: 5em;
-        padding: 1em;
-        color: white;
-      }
-      .notie-container {
-        box-shadow: none;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css">
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -55,32 +43,21 @@
         </ul>
       </div>
     </nav>
+
     <div class="container">
       <div class="row">
         <div class="col-md-3"></div>
         <div class="col-md-6">
-          <h1 class="text-center m-3">Book a room here</h1>
-          <form action="book.html" method="GET" novalidate class="needs-validation">
-            <div class="form-row">
+          <h1 class="text-center mt-3">Book a room here</h1>
+          <form action="book.html" method="POST" novalidate class="needs-validation">
+            <div class="row">
               <div class="col">
-                <div class="form-row" id="calendar">
-                  <div class="col">
+                <div class="row" id="calendar">
+                  <div class="col-md-6">
                     <input type="text" name="start" class="form-control" placeholder="Your check-in date" required>
-                    <div class="valid-feedback">
-                      Looks good!
-                    </div>
-                    <div class="invalid-feedback">
-                      Please provide a valid date.
-                    </div>
                   </div>
-                  <div class="col">
-                    <input type="text" name="end" class="form-control" placeholder="Your check-out date" required>
-                    <div class="valid-feedback">
-                      Looks good!
-                    </div>
-                    <div class="invalid-feedback">
-                      Please provide a valid date.
-                    </div> 
+                  <div class="col-md-6">
+                    <input type="text" name="end" class="form-control" placeholder="Your check-out date" required> 
                   </div>
                 </div>
               </div>
@@ -91,6 +68,7 @@
         </div>
       </div>
     </div>
+
     <div class="row">
       <div class="col footer">
         Footer
@@ -123,18 +101,34 @@
         }, false);
       })();
 
+      document.getElementById("submit-btn").addEventListener("click", function () {        
+        let html = `
+          <form id="check-availability-form" action="" method="POST" novalidate class="needs-validation">
+            <div class="form-row">
+              <div class="col">
+                <div class="form-row" id="reservation-dates-modal">
+                  <div class="col">
+                    <input required disabled class="form-control" type="text" name="start" id="start" placeholder="Your check-in date">
+                  </div>
+                  <div class="col">
+                    <input required disabled class="form-control" type="text" name="end" id="end" placeholder="Your check-out date">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        `;
+
+        attention.custom({
+          msg: html,
+          title: "Pick your dates"
+        });
+      })
+
       const calendar = document.getElementById('calendar');
-      const rangepicker = new DateRangePicker(calendar, {
+      const rangePicker = new DateRangePicker(calendar, {
         format: "yyyy/mm/dd"
       });
-
-      document.getElementById("submit-btn").addEventListener("click", function () {
-        // notify("MSG", "success");
-        // modalAlert("title", "text", "success", "btnText")
-        // attention.toast({msg: "Hello!"});
-        // attention.success({msg: "Success!"});
-        attention.error({msg: "Oops!"});
-      })
 
       function notify(msg, msgType) {
         notie.alert({
@@ -176,12 +170,13 @@
 
           Toast.fire({}); // takes necessary arguments from Toast above
         }
+
         let success = function(c){
           const {
             msg = "",
             footer = "",
             title = ""
-          } = c;
+          } = c
 
           Swal.fire({
             icon: "success",
@@ -196,7 +191,7 @@
             msg = "",
             footer = "",
             title = ""
-          } = c;
+          } = c
 
           Swal.fire({
             icon: "error",
@@ -206,10 +201,47 @@
           });
         }
 
+        async function custom(c) {
+          const {
+            msg = "",
+            title = ""
+          } = c;
+
+          const { value: formValues } = await Swal.fire({
+            title: title,
+            html: msg,
+            backdrop: false,
+            focusConfirm: false,
+            showCancelButton: true,
+            willOpen: () => {
+              const calDates = document.getElementById("reservation-dates-modal");
+              const datePicker = new DateRangePicker(calDates, {
+                format: "yyyy/mm/dd",
+                showOnFocus: true
+              })
+            },
+            didOpen: () => {
+              document.getElementById("start"). removeAttribute("disabled");
+              document.getElementById("end"). removeAttribute("disabled");
+            },
+            preConfirm: () => {
+              return [
+                document.getElementById("start").value,
+                document.getElementById("end").value
+              ]
+            }
+          });
+
+          if (formValues) {
+            Swal.fire(JSON.stringify(formValues));
+          }
+        }
+
         return {
           toast: toast,
           success: success,
-          error: error
+          error: error,
+          custom: custom
         }
       }
     </script>
